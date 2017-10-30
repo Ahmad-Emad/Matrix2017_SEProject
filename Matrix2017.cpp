@@ -16,7 +16,7 @@ Matrix::~Matrix() //default destructor
 	reset();
 }
 
-Matrix::Matrix(int nRows, int nColumns, int initialization, double initializationValue)
+Matrix::Matrix(int nRows, int nColumns, int initialization, double initializationValue)//initialize number of rows columns intitialization case 
 {
 	this->nRows = nRows;
 	this->nColumns = nColumns;
@@ -25,13 +25,14 @@ Matrix::Matrix(int nRows, int nColumns, int initialization, double initializatio
 		values = NULL;
 		return;
 	}
-	values = new double*[nRows];
+	values = new double*[nRows];//create array with number of rows
 	for (int iR = 0;iR<nRows;iR++)
 	{
-		values[iR] = new double[nColumns];
+		values[iR] = new double[nColumns];// for each row create array with number of columns
 		for (int iC = 0;iC<nColumns;iC++)
 		{
-			switch (initialization)
+			switch (initialization)//check initialization case: zeros , ones , eye , random or have initial value
+					       //using enum  MI_ZEROS =0..MI_ONES=1..MI_EYE=2..MI_RAND=3..MI_VALUE=4
 			{
 			case MI_ZEROS:
 				values[iR][iC] = 0;
@@ -40,11 +41,11 @@ Matrix::Matrix(int nRows, int nColumns, int initialization, double initializatio
 				values[iR][iC] = 1;
 				break;
 			case MI_EYE:
-				values[iR][iC] = (iR == iC) ? 1 : 0;
+				values[iR][iC] = (iR == iC) ? 1 : 0;//diagonal=1 , other elements = 0
 				break;
 			case MI_RAND: values[iR][iC] = (rand() % 1000000) / 1000000.0;
 				break;
-			case MI_VALUE:
+			case MI_VALUE:                               // use initializationValue
 				values[iR][iC] = initializationValue;
 				break;
 			}
@@ -52,7 +53,7 @@ Matrix::Matrix(int nRows, int nColumns, int initialization, double initializatio
 	}
 }
 
-Matrix::Matrix(int nRows, int nColumns, double first, ...)
+Matrix::Matrix(int nRows, int nColumns, double first, ...)// initialize number of rows columns and values using unlimited argument function
 {
 	this->nRows = nRows;
 	this->nColumns = nColumns;
@@ -62,20 +63,20 @@ Matrix::Matrix(int nRows, int nColumns, double first, ...)
 		return;
 	}
 	values = new double*[nRows];
-	va_list va;
-	va_start(va, first);
+	va_list va;	//hold information about arguments 
+	va_start(va, first);//initialize argument list
 	for (int iR = 0;iR<nRows;iR++)
 	{
 		values[iR] = new double[nColumns];
 		for (int iC = 0;iC<nColumns;iC++)
 		{
-			values[iR][iC] = (iC == 0 && iR == 0) ? first : va_arg(va, double);
+			values[iR][iC] = (iC == 0 && iR == 0) ? first : va_arg(va, double);//check if first element (ir=ic=0)use first else use va_arg to get next argument 
 		}
 	}
 	va_end(va);
 }
 
-Matrix::Matrix(Matrix& m)
+Matrix::Matrix(Matrix& m)//initialize with matrix
 {
 	nRows = nColumns = 0;
 	values = NULL;
@@ -89,14 +90,14 @@ Matrix::Matrix(string s)
 	copy(s);
 }
 
-Matrix::Matrix(double d)
+Matrix::Matrix(double d)//initialize matrix 1x1 with one value
 {
 	nRows = nColumns = 0;
 	values = NULL;
 	copy(d);
 }
 
-void Matrix::copy(const Matrix& m)
+void Matrix::copy(const Matrix& m)//copy matrix to new one
 {
 	reset();
 	this->nRows = m.nRows;
@@ -117,7 +118,7 @@ void Matrix::copy(const Matrix& m)
 	}
 }
 
-void Matrix::copy(double d)
+void Matrix::copy(double d) // copy matrix with one value to new one
 {
 	reset();
 	this->nRows = 1;
@@ -166,9 +167,9 @@ void Matrix::copy(string s)
 	delete[] buffer;
 }
 
-void Matrix::reset()
+void Matrix::reset() // delete the matrix
 {
-	if (values)
+	if (values) 
 	{
 		for (int i = 0;i<nRows;i++)
 			delete[] values[i];
@@ -178,7 +179,7 @@ void Matrix::reset()
 	values = NULL;
 }
 
-string Matrix::getString()
+string Matrix::getString() // write data of the matrix in special format
 {
 	string s="";
 	for (int iR = 0; iR<nRows; iR++)
@@ -187,9 +188,9 @@ string Matrix::getString()
 		{
 			//cout << values[iR][iC] << " ";
 
-			char buffer[50]="";
-			snprintf(buffer, 50, "%g\t", values[iR][iC]);
-			s += buffer;
+			char buffer[50]=""; 			     //initialize buffer with size =50
+			snprintf(buffer, 50, "%g\t", values[iR][iC]);// write the data in the buffer with the format
+			s += buffer;				     //add data in the buffer to s
 		}
 		//cout << endl;
 		s += "\n";
@@ -206,19 +207,19 @@ Matrix Matrix::operator=(const Matrix& m)
 Matrix Matrix::operator=(const double d) { copy(d);return *this; }
 Matrix Matrix::operator=(string s) { copy(s);return *this; }
 
-void Matrix::add(const Matrix& m)
+void Matrix::add(const Matrix& m) // add two matrices
 {
-	if (nRows != m.nRows || nColumns != m.nColumns)
+	if (nRows != m.nRows || nColumns != m.nColumns) // 2 matrices should bs same dimensions
 		throw("Invalid matrix dimension");
 	for (int iR = 0; iR < nRows; iR++)
 	{
 		for (int iC = 0;iC < nColumns;iC++)
-			values[iR][iC] += m.values[iR][iC];
+			values[iR][iC] += m.values[iR][iC]; // add values of 2 matrices
 	}
 }
-void Matrix::operator+=(Matrix& m) { add(m); }
+void Matrix::operator+=(Matrix& m) { add(m); } //add two matrices 
 void Matrix::operator+=(double d) { add(Matrix(nRows, nColumns, MI_VALUE, d)); }
-Matrix Matrix::operator+(Matrix& m) { Matrix r = *this;r += m;return r; }
+Matrix Matrix::operator+(Matrix& m) { Matrix r = *this;r += m;return r; } // add two matrices to new one .. C=A+B
 Matrix Matrix::operator+(double d) { Matrix r = *this;r += d;return r; }
 
 void Matrix::sub(const Matrix& m)
