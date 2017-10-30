@@ -127,7 +127,7 @@ void Matrix::copy(double d)
 	values[0][0] = d;
 }
 
-void Matrix::copy(string s)
+void Matrix::copy(string s) // parsing string data and copy to matrix .. A(["1 1 1 ;2 2 2;3 3 3"])
 {
 	reset();
 	char* buffer = new char[s.length() + 1];
